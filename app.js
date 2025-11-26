@@ -66,6 +66,10 @@ const UI_TRANSLATIONS = {
     imageError: 'Resim oluşturma hatası:',
     emptyStateTitle: 'AI Mini Sohbet',
     emptyStateDesc: 'En popüler yapay zeka modelleri burada. Sağdan modelini seç ve sohbete başla.',
+    history: 'GEÇMİŞ',
+    user: 'KULLANICI',
+    error: 'Hata',
+    connectionLost: 'Bağlantı koptu.',
   },
   en: {
     newChat: 'New Chat',
@@ -97,6 +101,10 @@ const UI_TRANSLATIONS = {
     imageError: 'Image generation error:',
     emptyStateTitle: 'AI Mini Chat',
     emptyStateDesc: 'The most popular AI models are here. Select your model from the right and start chatting.',
+    history: 'HISTORY',
+    user: 'USER',
+    error: 'Error',
+    connectionLost: 'Connection lost.',
   },
   zh: {
     newChat: '新对话',
@@ -128,6 +136,10 @@ const UI_TRANSLATIONS = {
     imageError: '图片生成错误：',
     emptyStateTitle: 'AI 迷你聊天',
     emptyStateDesc: '最受欢迎的 AI 模型都在这里。从右侧选择模型并开始聊天。',
+    history: '历史',
+    user: '用户',
+    error: '错误',
+    connectionLost: '连接丢失。',
   },
   hi: {
     newChat: 'नई चैट',
@@ -159,6 +171,10 @@ const UI_TRANSLATIONS = {
     imageError: 'छवि जनरेशन त्रुटि:',
     emptyStateTitle: 'AI मिनी चैट',
     emptyStateDesc: 'सबसे लोकप्रिय AI मॉडल यहां हैं। दाईं ओर से अपना मॉडल चुनें और चैटिंग शुरू करें।',
+    history: 'इतिहास',
+    user: 'उपयोगकर्ता',
+    error: 'त्रुटि',
+    connectionLost: 'कनेक्शन टूट गया।',
   },
   es: {
     newChat: 'Nueva Conversación',
@@ -190,6 +206,10 @@ const UI_TRANSLATIONS = {
     imageError: 'Error al generar imagen:',
     emptyStateTitle: 'AI Mini Chat',
     emptyStateDesc: 'Los modelos de IA más populares están aquí. Selecciona tu modelo a la derecha y comienza a chatear.',
+    history: 'HISTORIAL',
+    user: 'USUARIO',
+    error: 'Error',
+    connectionLost: 'Conexión perdida.',
   },
   fr: {
     newChat: 'Nouvelle Conversation',
@@ -221,6 +241,10 @@ const UI_TRANSLATIONS = {
     imageError: "Erreur de génération d'image:",
     emptyStateTitle: 'AI Mini Chat',
     emptyStateDesc: 'Les modèles IA les plus populaires sont ici. Sélectionnez votre modèle à droite et commencez à discuter.',
+    history: 'HISTORIQUE',
+    user: 'UTILISATEUR',
+    error: 'Erreur',
+    connectionLost: 'Connexion perdue.',
   },
   ar: {
     newChat: 'محادثة جديدة',
@@ -252,6 +276,10 @@ const UI_TRANSLATIONS = {
     imageError: 'خطأ في إنشاء الصورة:',
     emptyStateTitle: 'AI ميني شات',
     emptyStateDesc: 'أشهر نماذج الذكاء الاصطناعي هنا. اختر نموذجك من اليمين وابدأ الدردشة.',
+    history: 'التاريخ',
+    user: 'المستخدم',
+    error: 'خطأ',
+    connectionLost: 'انقطع الاتصال.',
   },
   bn: {
     newChat: 'নতুন চ্যাট',
@@ -283,6 +311,10 @@ const UI_TRANSLATIONS = {
     imageError: 'ছবি জেনারেশন ত্রুটি:',
     emptyStateTitle: 'AI মিনি চ্যাট',
     emptyStateDesc: 'সবচেয়ে জনপ্রিয় AI মডেলগুলি এখানে। ডান দিক থেকে আপনার মডেল নির্বাচন করুন এবং চ্যাট শুরু করুন।',
+    history: 'ইতিহাস',
+    user: 'ব্যবহারকারী',
+    error: 'ত্রুটি',
+    connectionLost: 'সংযোগ বিচ্ছিন্ন।',
   },
   pt: {
     newChat: 'Nova Conversa',
@@ -314,6 +346,10 @@ const UI_TRANSLATIONS = {
     imageError: 'Erro na geração de imagem:',
     emptyStateTitle: 'AI Mini Chat',
     emptyStateDesc: 'Os modelos de IA mais populares estão aqui. Selecione seu modelo à direita e comece a conversar.',
+    history: 'HISTÓRICO',
+    user: 'USUÁRIO',
+    error: 'Erro',
+    connectionLost: 'Conexão perdida.',
   },
   ru: {
     newChat: 'Новый Чат',
@@ -345,6 +381,10 @@ const UI_TRANSLATIONS = {
     imageError: 'Ошибка генерации изображения:',
     emptyStateTitle: 'AI Мини Чат',
     emptyStateDesc: 'Самые популярные модели AI здесь. Выберите модель справа и начните общение.',
+    history: 'ИСТОРИЯ',
+    user: 'ПОЛЬЗОВАТЕЛЬ',
+    error: 'Ошибка',
+    connectionLost: 'Соединение потеряно.',
   },
   ja: {
     newChat: '新しいチャット',
@@ -376,6 +416,10 @@ const UI_TRANSLATIONS = {
     imageError: '画像生成エラー:',
     emptyStateTitle: 'AI ミニチャット',
     emptyStateDesc: '最も人気のあるAIモデルがここにあります。右からモデルを選択してチャットを始めましょう。',
+    history: '履歴',
+    user: 'ユーザー',
+    error: 'エラー',
+    connectionLost: '接続が切れました。',
   },
 };
 
@@ -509,6 +553,40 @@ function logError(error, context = '') {
   }
 }
 
+// --- TOAST BİLDİRİM ---
+function showToast(message, type = 'error') {
+  // Remove existing toast
+  const existingToast = document.getElementById('toast-notification');
+  if (existingToast) {
+    existingToast.remove();
+  }
+
+  const toast = document.createElement('div');
+  toast.id = 'toast-notification';
+  toast.className = `fixed bottom-20 left-1/2 transform -translate-x-1/2 px-4 py-3 rounded-lg shadow-lg z-50 flex items-center gap-2 text-sm max-w-sm ${
+    type === 'error' 
+      ? 'bg-red-900/90 text-red-200 border border-red-700' 
+      : 'bg-green-900/90 text-green-200 border border-green-700'
+  }`;
+  
+  const icon = type === 'error' ? 'alert-circle' : 'check-circle';
+  toast.innerHTML = `
+    <i data-lucide="${icon}" class="w-5 h-5 flex-shrink-0"></i>
+    <span>${message}</span>
+  `;
+  
+  document.body.appendChild(toast);
+  
+  if (typeof lucide !== 'undefined') {
+    lucide.createIcons();
+  }
+  
+  // Auto remove after 5 seconds
+  setTimeout(() => {
+    toast.remove();
+  }, 5000);
+}
+
 // --- INIT ---
 function initApp() {
   // Lucide ikonlarını başlat
@@ -612,7 +690,7 @@ async function handleSendClick() {
       .slice(-8)
       .map((m) => `${m.role}: ${m.content}`)
       .join('\n');
-    const fullPrompt = `${modeConfig.system}\n\n${langPrompt}\n\n${stylePrompt}\n\nGEÇMİŞ:\n${historyContext}\n\nUSER: ${text}`;
+    const fullPrompt = `${modeConfig.system}\n\n${langPrompt}\n\n${stylePrompt}\n\n${t('history')}:\n${historyContext}\n\n${t('user')}: ${text}`;
 
     let response;
 
@@ -664,7 +742,7 @@ async function handleSendClick() {
     logError(err, 'handleSendClick');
     currentChat.messages.push({
       role: 'assistant',
-      content: `⚠️ Hata: ${err.message || 'Bağlantı koptu.'}`,
+      content: `⚠️ ${t('error')}: ${err.message || t('connectionLost')}`,
     });
   } finally {
     currentChat.isProcessing = false;
@@ -1015,7 +1093,7 @@ function handleFileUpload(event) {
   const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/heic'];
 
   if (!allowedTypes.includes(file.type)) {
-    alert(t('unsupportedFileFormat'));
+    showToast(t('unsupportedFileFormat'), 'error');
     return;
   }
 
@@ -1078,7 +1156,7 @@ async function generateImage() {
 
   const prompt = promptInput.value.trim();
   if (!prompt) {
-    alert(t('enterPrompt'));
+    showToast(t('enterPrompt'), 'error');
     return;
   }
 
@@ -1125,7 +1203,7 @@ async function generateImage() {
     promptInput.value = '';
   } catch (err) {
     logError(err, 'generateImage');
-    alert(`${t('imageError')} ${err.message}`);
+    showToast(`${t('imageError')} ${err.message}`, 'error');
   } finally {
     generateBtn.innerHTML = originalBtnText;
     generateBtn.disabled = false;
