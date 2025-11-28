@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Puter AI Mini - Basit Sohbet</title>
+
+    <!-- CDN Bağımlılıkları -->
+    <script src="https://js.puter.com/v2/"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <!-- Harici CSS Dosyası -->
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="h-screen flex overflow-hidden selection:bg-blue-500 selection:text-white">
+    <!-- Left Sidebar (History) -->
+    <div
+      id="sidebar-left"
+      class="w-64 flex-shrink-0 flex flex-col border-r border-[#2f3345] bg-[#0f111a] transition-transform duration-300 transform -translate-x-full md:translate-x-0 absolute md:relative z-30 h-full safe-area-left"
+    >
+      <!-- User Profile -->
+      <div class="p-4 border-b border-[#2f3345] flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3 flex-1 min-w-0">
+          <div
+            id="user-avatar"
+            class="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-600 to-purple-600 flex items-center justify-center font-bold text-sm shadow-lg flex-shrink-0"
+          >
+            ?
+          </div>
+          <div class="flex-1 min-w-0">
+            <div id="username" class="truncate font-medium text-sm">Misafir</div>
+            <button
+              onclick="handleAuth()"
+              class="text-xs text-blue-400 hover:text-blue-300 transition-colors"
+            >
+              <span id="auth-btn-text">Giriş Yap</span>
+            </button>
+          </div>
+        </div>
+        <!-- Close Button for Mobile -->
+        <button
+          onclick="toggleLeftSidebar()"
+          class="md:hidden text-gray-400 hover:text-white p-2 min-w-[44px] min-h-[44px] flex items-center justify-center"
+        >
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- New Chat -->
+      <div class="p-4">
+        <button
+          onclick="startNewChat()"
+          class="w-full bg-[#3b52d4] hover:bg-[#2e42b5] text-white py-2.5 px-4 rounded-xl font-medium text-sm flex items-center justify-center gap-2 transition-all shadow-lg shadow-blue-900/20 min-h-[44px]"
+        >
+          <i data-lucide="plus" class="w-4 h-4"></i>
+          <span id="new-chat-btn-text">Yeni Sohbet</span>
+        </button>
+      </div>
+
+      <!-- History List -->
+      <div class="flex-1 overflow-y-auto px-2 pb-4 space-y-1" id="history-list"></div>
+    </div>
+
+    <!-- Center (Chat Area) -->
+    <div class="flex-1 flex flex-col relative min-w-0 bg-[#0f111a]">
+      <!-- Header with Tabs -->
+      <div
+        class="h-14 border-b border-[#2f3345] flex items-center px-4 justify-between bg-[#0f111a]/95 backdrop-blur z-20"
+      >
+        <div class="flex items-center gap-3">
+          <button
+            onclick="toggleLeftSidebar()"
+            class="md:hidden text-gray-400 hover:text-white min-w-[44px] min-h-[44px] flex items-center justify-center"
+          >
+            <i data-lucide="menu" class="w-5 h-5"></i>
+          </button>
+
+          <!-- Tab Buttons -->
+          <div class="flex items-center gap-1 border-b border-transparent">
+            <button
+              id="chat-tab-btn"
+              onclick="switchTab('chat')"
+              class="px-3 py-2 text-sm font-medium text-white border-b-2 border-blue-500 active flex items-center gap-2 min-h-[44px]"
+            >
+              <i data-lucide="message-square" class="w-4 h-4"></i>
+              <span class="hidden sm:inline" id="chat-tab-text">Sohbet</span>
+            </button>
+            <button
+              id="image-tab-btn"
+              onclick="switchTab('image')"
+              class="px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-300 flex items-center gap-2 min-h-[44px]"
+            >
+              <i data-lucide="image" class="w-4 h-4"></i>
+              <span class="hidden sm:inline" id="image-tab-text">Resim Oluştur</span>
+            </button>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <span
+            id="header-status"
+            class="hidden text-[10px] bg-blue-900/30 text-blue-400 px-2 py-0.5 rounded-full animate-pulse"
+          >
+            İşleniyor...
+          </span>
+          <button
+            onclick="toggleRightSidebar()"
+            class="lg:hidden text-gray-400 hover:text-white min-w-[44px] min-h-[44px] flex items-center justify-center"
+          >
+            <i data-lucide="settings-2" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Chat Tab Content -->
+      <div id="chat-tab-content" class="flex-1 flex flex-col">
+        <!-- Messages -->
+        <div id="chat-container" class="flex-1 overflow-y-auto p-4 scroll-smooth">
+          <div
+            id="empty-state"
+            class="h-full flex flex-col items-center justify-center text-center opacity-60"
+          >
+            <div
+              class="w-20 h-20 bg-[#1e2130] rounded-2xl flex items-center justify-center mb-6 shadow-xl"
+            >
+              <i data-lucide="cpu" class="w-10 h-10 text-[#3b52d4]"></i>
+            </div>
+            <h3 class="text-xl font-semibold mb-2 text-white" id="chat-header-title">
+              AI Mini Sohbet
+            </h3>
+            <p class="text-sm text-gray-400 max-w-xs" id="empty-state-desc">
+              En popüler yapay zeka modelleri burada. Sağdan modelini seç ve sohbete başla.
+            </p>
+          </div>
+          <div id="messages-list" class="max-w-3xl mx-auto space-y-6 pb-10"></div>
+        </div>
+
+        <!-- File Preview -->
+        <div id="file-preview-container" class="hidden px-4 max-w-3xl mx-auto w-full"></div>
+
+        <!-- Input -->
+        <div class="p-4 border-t border-[#2f3345] bg-[#0f111a] safe-area-bottom">
+          <div class="max-w-3xl mx-auto relative">
+            <div
+              class="relative bg-[#1e2130] rounded-xl border border-[#2f3345] shadow-lg focus-within:border-[#3b52d4] transition-colors"
+            >
+              <div class="flex items-end">
+                <!-- File Upload Button -->
+                <label
+                  class="p-3 cursor-pointer hover:bg-white/5 rounded-l-xl transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+                >
+                  <input
+                    type="file"
+                    id="file-upload-input"
+                    class="hidden"
+                    accept="image/jpeg,image/png,image/gif,image/heic"
+                  />
+                  <i data-lucide="paperclip" class="w-5 h-5 text-gray-400"></i>
+                </label>
+                <textarea
+                  id="prompt-input"
+                  rows="1"
+                  class="flex-1 bg-transparent text-sm text-white py-3 pr-12 resize-none focus:outline-none max-h-40 scrollbar-hide"
+                  placeholder="Bir şeyler sor..."
+                ></textarea>
+                <button
+                  onclick="handleSendClick()"
+                  class="absolute right-2 bottom-2 p-2 bg-[#3b52d4] hover:bg-[#2e42b5] text-white rounded-lg transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+                >
+                  <i data-lucide="send" class="w-4 h-4"></i>
+                </button>
+              </div>
+            </div>
+            <div
+              class="text-center mt-2 text-[10px] text-gray-600 flex justify-center gap-3 flex-wrap"
+            >
+              <span>⚡ Hızlı Yanıt</span>
+              <span>•</span>
+              <span>🔒 Güvenli</span>
+              <span>•</span>
+              <span>🌍 Çoklu Dil</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Image Generation Tab Content -->
+      <div id="image-tab-content" class="flex-1 flex flex-col hidden">
+        <div class="p-4 flex-1 overflow-y-auto">
+          <div class="max-w-3xl mx-auto">
+            <!-- Image Generation Form -->
+            <div class="bg-[#1e2130] rounded-xl border border-[#2f3345] p-4 mb-6">
+              <div class="flex flex-col gap-4">
+                <div>
+                  <label
+                    class="block text-xs font-medium text-gray-400 mb-2 uppercase tracking-wider"
+                    id="image-prompt-label"
+                  >
+                    Prompt
+                  </label>
+                  <textarea
+                    id="image-prompt"
+                    rows="3"
+                    class="w-full bg-[#151722] border border-[#2f3345] text-sm text-white p-3 rounded-lg resize-none focus:outline-none focus:border-[#3b52d4]"
+                    placeholder="Oluşturmak istediğiniz resmi açıklayın..."
+                  ></textarea>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-4">
+                  <div class="flex-1">
+                    <label
+                      class="block text-xs font-medium text-gray-400 mb-2 uppercase tracking-wider"
+                      id="image-model-label"
+                    >
+                      Model
+                    </label>
+                    <select
+                      id="image-model-selector"
+                      class="w-full bg-[#151722] border border-[#2f3345] text-sm text-gray-200 rounded-lg p-3 focus:ring-1 focus:ring-blue-500 outline-none"
+                    >
+                      <option value="nano-banana">Nano Banana</option>
+                      <option value="nano-banana-pro">Nano Banana Pro</option>
+                    </select>
+                  </div>
+                  <div class="flex items-end">
+                    <button
+                      id="generate-image-btn"
+                      class="w-full sm:w-auto bg-[#3b52d4] hover:bg-[#2e42b5] text-white px-6 py-3 rounded-lg font-medium text-sm flex items-center justify-center gap-2 transition-colors min-h-[44px]"
+                    >
+                      <i data-lucide="sparkles" class="w-4 h-4"></i>
+                      <span id="generate-btn-text">Oluştur</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Image Gallery -->
+            <div>
+              <h3 class="text-sm font-medium text-gray-400 mb-4 uppercase tracking-wider" id="generated-images-title">
+                Oluşturulan Resimler
+              </h3>
+              <div id="image-gallery" class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <!-- Generated images will be added here -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Sidebar (Settings) -->
+    <div
+      id="sidebar-right"
+      class="w-80 flex-shrink-0 border-l border-[#2f3345] bg-[#0f111a] flex flex-col transition-transform duration-300 transform translate-x-full lg:translate-x-0 absolute right-0 lg:relative z-30 h-full safe-area-right"
+    >
+      <div class="p-5 border-b border-[#2f3345] flex justify-between items-start">
+        <div>
+          <h3 class="text-sm font-semibold mb-1 text-white" id="control-panel-title">
+            Kontrol Paneli
+          </h3>
+          <p class="text-xs text-gray-500" id="control-panel-desc">Dil ve Model Ayarları</p>
+        </div>
+        <!-- Close Button for Mobile -->
+        <button
+          onclick="toggleRightSidebar()"
+          class="lg:hidden text-gray-400 hover:text-white p-2 min-w-[44px] min-h-[44px] flex items-center justify-center"
+        >
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="p-5 space-y-6 overflow-y-auto flex-1">
+        <!-- Language Selector -->
+        <div>
+          <label
+            class="block text-xs font-medium text-gray-400 mb-3 uppercase tracking-wider"
+            id="language-label"
+          >
+            Dil
+          </label>
+          <select
+            id="language-selector"
+            class="w-full bg-[#1e2130] border border-[#2f3345] text-sm text-gray-200 rounded-lg p-3 focus:ring-1 focus:ring-blue-500 outline-none"
+          >
+            <option value="tr">🇹🇷 Türkçe</option>
+            <option value="en">🇺🇸 English</option>
+            <option value="zh">🇨🇳 中文</option>
+            <option value="hi">🇮🇳 हिन्दी</option>
+            <option value="es">🇪🇸 Español</option>
+            <option value="fr">🇫🇷 Français</option>
+            <option value="ar">🇸🇦 العربية</option>
+            <option value="bn">🇧🇩 বাংলা</option>
+            <option value="pt">🇧🇷 Português</option>
+            <option value="ru">🇷🇺 Русский</option>
+            <option value="ja">🇯🇵 日本語</option>
+          </select>
+        </div>
+
+        <!-- Model Selector -->
+        <div>
+          <label
+            class="block text-xs font-medium text-gray-400 mb-3 uppercase tracking-wider"
+            id="ai-engine-label"
+          >
+            Yapay Zeka Motoru
+          </label>
+          <div class="relative">
+            <select
+              id="model-selector"
+              class="w-full bg-[#1e2130] border border-[#2f3345] text-sm text-gray-200 rounded-lg p-3 focus:ring-1 focus:ring-blue-500 outline-none"
+            >
+              <option value="openrouter:openai/gpt-4o">ChatGPT (GPT-4o)</option>
+              <option value="openrouter:moonshotai/kimi-k2">Kimi k2</option>
+              <option value="openrouter:google/gemini-2.5-flash-preview">Gemini 2.5 Flash</option>
+              <option value="openrouter:anthropic/claude-sonnet-4">Claude Sonnet 4</option>
+              <option value="openrouter:anthropic/claude-sonnet-4.5">Claude Sonnet 4.5</option>
+              <option value="openrouter:anthropic/claude-opus-4.5">Claude Opus 4.5</option>
+              <option value="openrouter:google/gemini-3-pro-preview">Gemini 3 Pro</option>
+              <option value="openrouter:openai/gpt-5.1">Gpt 5.1</option>
+              <option value="openrouter:google/gpt-5-pro">Gpt 5 Pro</option>
+              <option value="openrouter:google/gemini-2.5-pro-preview">Gemini 2.5 Pro</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Conversation Style Selector -->
+        <div>
+          <label
+            class="block text-xs font-medium text-gray-400 mb-3 uppercase tracking-wider"
+            id="conversation-style-label"
+          >
+            Konuşma Stili
+          </label>
+          <select
+            id="style-selector"
+            class="w-full bg-[#1e2130] border border-[#2f3345] text-sm text-gray-200 rounded-lg p-3 focus:ring-1 focus:ring-blue-500 outline-none mb-2"
+          >
+            <option value="normal">Normal - Profesyonel</option>
+            <option value="genz">Z Kuşağı - 🔥💀 Argo</option>
+            <option value="millennial">Y Kuşağı - Nostaljik</option>
+            <option value="academic">Akademik - Bilimsel</option>
+            <option value="friendly">Samimi - Arkadaşça 😊</option>
+            <option value="custom">Özel - Kendi Stilin</option>
+          </select>
+          <textarea
+            id="custom-style-prompt"
+            class="hidden w-full bg-[#151722] border border-[#2f3345] text-sm text-white p-3 rounded-lg resize-none focus:outline-none focus:border-[#3b52d4]"
+            rows="3"
+            placeholder="Özel konuşma stilinizi yazın..."
+          ></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Harici JavaScript Dosyası -->
+    <script src="app.js"></script>
+  </body>
+</html>
